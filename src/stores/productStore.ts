@@ -10,15 +10,18 @@ import {
   deleteDoc,
   query,
   where,
-//   orderBy,
-//   limit
+  orderBy,
+  arrayUnion,
+  arrayRemove
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { useAuthStore } from './authStore';
 import type { Product } from '@/types';
 
 export const useProductStore = defineStore('product', () => {
   const products = ref<Product[]>([]);
   const currentProduct = ref<Product | null>(null);
+  const wishlist = ref<string[]>([]);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
@@ -28,7 +31,8 @@ export const useProductStore = defineStore('product', () => {
     error.value = null;
     
     try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
+      const q = query(collection(db, 'products'), orderBy('uploadedAt', 'desc'));
+      const querySnapshot = await getDocs(q);
       products.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -75,7 +79,8 @@ export const useProductStore = defineStore('product', () => {
     try {
       const q = query(
         collection(db, 'products'),
-        where('category', '==', category)
+        where('category', '==', category),
+        orderBy('uploadedAt', 'desc')
       );
       const querySnapshot = await getDocs(q);
       products.value = querySnapshot.docs.map(doc => ({
@@ -98,12 +103,14 @@ export const useProductStore = defineStore('product', () => {
     try {
       const docRef = await addDoc(collection(db, 'products'), {
         ...productData,
-        uploadedAt: new Date().toISOString()
+        uploadedAt: new Date().toISOString(),
+        wishlistCount: 0
       });
       
       const newProduct = {
         id: docRef.id,
-        ...productData
+        ...productData,
+        wishlistCount: 0
       } as Product;
       
       products.value.push(newProduct);
@@ -159,6 +166,64 @@ export const useProductStore = defineStore('product', () => {
     }
   };
 
+  // Load wishlist
+  const loadWishlist = async () => {
+    const authStore = useAuthStore();
+    if (!authStore.user) return;
+
+    try {
+      const userDoc = await getDoc(doc(db, 'users', authStore.user.uid));
+      if (userDoc.exists()) {
+        wishlist.value = userDoc.data().wishlist || [];
+      }
+    } catch (err) {
+      console.error('Load wishlist error:', err);
+    }
+  };
+
+  // Toggle wishlist
+  const toggleWishlist = async (productId: string) => {
+    const authStore = useAuthStore();
+    if (!authStore.user) return false;
+
+    try {
+      const userRef = doc(db, 'users', authStore.user.uid);
+      const productRef = doc(db, 'products', productId);
+      
+      const isWishlisted = wishlist.value.includes(productId);
+      
+      if (isWishlisted) {
+        // Remove from wishlist
+        await updateDoc(userRef, {
+          wishlist: arrayRemove(productId)
+        });
+        await updateDoc(productRef, {
+          wishlistCount: (currentProduct.value?.wishlistCount || 1) - 1
+        });
+        wishlist.value = wishlist.value.filter(id => id !== productId);
+      } else {
+        // Add to wishlist
+        await updateDoc(userRef, {
+          wishlist: arrayUnion(productId)
+        });
+        await updateDoc(productRef, {
+          wishlistCount: (currentProduct.value?.wishlistCount || 0) + 1
+        });
+        wishlist.value.push(productId);
+      }
+      
+      return true;
+    } catch (err) {
+      console.error('Toggle wishlist error:', err);
+      return false;
+    }
+  };
+
+  // Check if product is wishlisted
+  const isProductWishlisted = (productId: string) => {
+    return wishlist.value.includes(productId);
+  };
+
   // Get products by price range
   const productsByPriceRange = computed(() => {
     return (min: number, max: number) => {
@@ -184,6 +249,7 @@ export const useProductStore = defineStore('product', () => {
   return {
     products,
     currentProduct,
+    wishlist,
     loading,
     error,
     fetchProducts,
@@ -192,6 +258,9 @@ export const useProductStore = defineStore('product', () => {
     addProduct,
     updateProduct,
     deleteProduct,
+    loadWishlist,
+    toggleWishlist,
+    isProductWishlisted,
     productsByPriceRange,
     searchProducts
   };

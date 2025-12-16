@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useAuthStore } from './authStore';
 import type { Product } from '@/types';
@@ -23,7 +23,7 @@ export const useCartStore = defineStore('cart', () => {
   // Total price
   const totalPrice = computed(() => {
     return items.value.reduce((sum, item) => {
-      return sum + (parseInt(item.price) * item.quantity);
+      return sum + (item.price * item.quantity);
     }, 0);
   });
 

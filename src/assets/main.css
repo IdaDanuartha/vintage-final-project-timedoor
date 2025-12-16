@@ -404,18 +404,18 @@ footer .copyright-text {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: white;
+    background: none;
     border: none;
     width: 45px;
     height: 45px;
     border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
 .wishlist-btn:hover {
     transform: scale(1.1);
+    background: none;
 }
 
 .wishlist-btn i {

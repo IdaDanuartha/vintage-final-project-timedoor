@@ -1,40 +1,94 @@
 <template>
-  <section id="brand-category">
+  <section id="shop-category" class="py-5">
     <div class="container">
       <div class="mb-4">
-        <h3>Shop by brand</h3>
+        <h3>Shop by Category</h3>
       </div>
-      <div class="d-flex justify-content-evenly align-items-center gap-4 overflow-auto">
-        <a 
-          v-for="brand in brands" 
-          :key="brand.id" 
-          href="#" 
-          class="btn-brand-category"
+      <div class="categories-scroll">
+        <router-link
+          v-for="category in categories" 
+          :key="category"
+          :to="`/products?category=${encodeURIComponent(category)}`"
+          class="btn-category"
         >
-          {{ brand.name }}
-        </a>
+          {{ category }}
+        </router-link>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { Brand } from '@/types';
+import { ref, onMounted } from 'vue';
+import { useProductStore } from '@/stores/productStore';
 
-const brands = ref<Brand[]>([
-  { id: 1, name: 'Vans', slug: 'vans' },
-  { id: 2, name: 'Bohoo', slug: 'bohoo' },
-  { id: 3, name: 'Mango', slug: 'mango' },
-  { id: 4, name: 'Reebok', slug: 'reebok' },
-  { id: 5, name: 'Converse', slug: 'converse' },
-  { id: 6, name: 'Sandro', slug: 'sandro' },
-  { id: 7, name: 'Nike', slug: 'nike' },
-  { id: 8, name: 'Adidas', slug: 'adidas' },
-  { id: 9, name: 'Dior', slug: 'dior' },
-  { id: 10, name: 'Puma', slug: 'puma' },
-  { id: 11, name: 'Zara', slug: 'zara' },
-  { id: 12, name: 'Bershka', slug: 'bershka' },
-  { id: 13, name: 'American Eagle', slug: 'american-eagle' }
-]);
+const productStore = useProductStore();
+const categories = ref<string[]>([]);
+
+// Get unique categories from products
+const loadCategories = async () => {
+  await productStore.fetchProducts();
+  const uniqueCategories = [...new Set(productStore.products.map(p => p.category))];
+  categories.value = uniqueCategories.sort();
+};
+
+onMounted(() => {
+  loadCategories();
+});
 </script>
+
+<style scoped>
+.categories-scroll {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+  scroll-behavior: smooth;
+}
+
+.categories-scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.categories-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.categories-scroll::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.btn-category {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: #333;
+  text-decoration: none;
+  border: 2px solid #e0e0e0;
+  border-radius: 25px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  display: inline-block;
+}
+
+.btn-category:hover {
+  background: #000;
+  color: white;
+  border-color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  .btn-category {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+  }
+}
+</style>

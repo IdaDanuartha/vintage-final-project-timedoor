@@ -3,16 +3,23 @@ export interface Product {
   name: string;
   price: number;
   image: string;
-  size: string;
+  size: number;
   category: string;
   condition?: string;
   color: string;
   location?: string;
   uploadedAt?: string;
-  shipping: number;
+  shipping: string;
   description: string;
   wishlistCount?: number;
   images?: string[];
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  count?: number;
 }
 
 export interface Brand {
