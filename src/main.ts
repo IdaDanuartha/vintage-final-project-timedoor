@@ -2,7 +2,6 @@ import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import App from './App.vue';
 import router from './router';
-import { useAuthStore } from './stores/authStore';
 
 // Import Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -16,9 +15,5 @@ const pinia = createPinia();
 
 app.use(pinia);
 app.use(router);
-
-// Initialize auth listener
-const authStore = useAuthStore();
-authStore.initAuthListener();
 
 app.mount('#app');

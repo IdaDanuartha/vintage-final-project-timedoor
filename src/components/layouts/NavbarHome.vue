@@ -9,7 +9,7 @@
             alt="Vintaqe Logo" 
             class="brand-logo"
           >
-          <span class="brand-name">Vintaqe</span>
+          <span class="brand-name">Vintage</span>
         </router-link>
         
         <div class="search-bar">
@@ -190,6 +190,20 @@ const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=1a9b9b&c
 
 const wishlistCount = computed(() => productStore.wishlist.length);
 
+// Watch for authentication changes to reload data
+watch(() => authStore.isAuthenticated, async (isAuth) => {
+  if (isAuth) {
+    await Promise.all([
+      cartStore.loadCart(),
+      productStore.loadWishlist()
+    ]);
+  } else {
+    // Clear data when logged out
+    cartStore.items = [];
+    productStore.wishlist = [];
+  }
+});
+
 // Watch route changes to update search query from URL
 watch(() => route.query.search, (newSearch) => {
   if (newSearch && route.name === 'products') {
@@ -201,7 +215,6 @@ watch(() => route.query.search, (newSearch) => {
 
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
-    // Navigate to products page with search query
     router.push({ 
       name: 'products', 
       query: { search: searchQuery.value.trim() } 
@@ -240,13 +253,19 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   document.addEventListener('click', handleClickOutside);
   
-  // Load cart and wishlist if authenticated
+  // FIX: Load cart and wishlist with await if authenticated
   if (authStore.isAuthenticated) {
-    cartStore.loadCart();
-    productStore.loadWishlist();
+    try {
+      await Promise.all([
+        cartStore.loadCart(),
+        productStore.loadWishlist()
+      ]);
+    } catch (error) {
+      console.error('Failed to load user data:', error);
+    }
   }
 });
 
@@ -296,13 +315,13 @@ onUnmounted(() => {
 }
 
 .brand-logo {
-  width: 45px;
-  height: 45px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 
 .brand-name {
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* Search Bar */

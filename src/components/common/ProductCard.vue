@@ -17,16 +17,13 @@
 
 <script setup lang="ts">
 import type { Product } from '@/types';
+import { formatPrice } from '@/utils';
 
 interface Props {
   product: Product;
 }
 
 defineProps<Props>();
-
-const formatPrice = (price: number): string => {
-  return price.toLocaleString('id-ID');
-};
 </script>
 
 <style scoped>

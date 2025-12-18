@@ -1,3 +1,169 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { useProductStore } from '@/stores/productStore';
+import { useCartStore } from '@/stores/cartStore';
+import { useAuthStore } from '@/stores/authStore';
+import ProductCard from '@/components/common/ProductCard.vue';
+import { formatPrice } from '@/utils';
+
+const route = useRoute();
+const router = useRouter();
+const productStore = useProductStore();
+const cartStore = useCartStore();
+const authStore = useAuthStore();
+
+const selectedImage = ref('');
+const showSuccessModal = ref(false);
+const addingToCart = ref(false);
+const error = ref<string | null>(null);
+
+const product = computed(() => productStore.currentProduct);
+
+const isWishlisted = computed(() => {
+  if (!product.value) return false;
+  return productStore.isProductWishlisted(product.value.id);
+});
+
+const otherProducts = computed(() => {
+  if (!product.value) return [];
+  return productStore.products
+    .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
+    .slice(0, 8);
+});
+
+// Set initial selected image when product loads
+watch(product, (newProduct) => {
+  if (newProduct) {
+    selectedImage.value = newProduct.images?.[0] || newProduct.image;
+  }
+}, { immediate: true });
+
+// Watch for route parameter changes
+watch(() => route.params.id, async (newId) => {
+  if (newId) {
+    await loadProductData(newId as string);
+  }
+});
+
+const formatUploadTime = (uploadedAt?: string): string => {
+  if (!uploadedAt) return '5 hours ago';
+  
+  const now = new Date();
+  const uploaded = new Date(uploadedAt);
+  const diffMs = now.getTime() - uploaded.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffHours / 24);
+  
+  if (diffHours < 1) return 'Just now';
+  if (diffHours < 24) return `${diffHours} hours ago`;
+  if (diffDays < 7) return `${diffDays} days ago`;
+  
+  return uploaded.toLocaleDateString('id-ID');
+};
+
+const toggleWishlist = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login');
+    return;
+  }
+  
+  if (product.value) {
+    const success = await productStore.toggleWishlist(product.value.id);
+    if (success) {
+      await productStore.fetchProductById(product.value.id);
+    }
+  }
+};
+
+const buyNow = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login');
+    return;
+  }
+  
+  if (product.value) {
+    addingToCart.value = true;
+    error.value = null;
+    
+    try {
+      await cartStore.addItem(product.value);
+      router.push('/checkout');
+    } catch (err: any) {
+      console.error('Buy now error:', err);
+      error.value = err.message || 'Failed to add item to cart';
+      alert('Failed to add item to cart. Please try again.');
+    } finally {
+      addingToCart.value = false;
+    }
+  }
+};
+
+const addToCart = async () => {
+  if (!authStore.isAuthenticated) {
+    router.push('/login');
+    return;
+  }
+  
+  if (product.value) {
+    addingToCart.value = true;
+    error.value = null;
+    
+    try {
+      await cartStore.addItem(product.value);
+      showSuccessModal.value = true;
+    } catch (err: any) {
+      console.error('Add to cart error:', err);
+      error.value = err.message || 'Failed to add item to cart';
+      alert('Failed to add item to cart. Please try again.');
+    } finally {
+      addingToCart.value = false;
+    }
+  }
+};
+
+const closeModal = () => {
+  showSuccessModal.value = false;
+};
+
+const goToCart = () => {
+  showSuccessModal.value = false;
+  router.push('/cart');
+};
+
+// Extract loading logic to reusable function
+const loadProductData = async (productId: string) => {
+  // Scroll to top when loading new product
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  try {
+    await productStore.fetchProductById(productId);
+    
+    // Load wishlist if user is authenticated
+    if (authStore.isAuthenticated) {
+      await productStore.loadWishlist();
+    }
+    
+    // Fetch products for "Other Products" section
+    if (product.value?.category) {
+      await productStore.fetchProductsByCategory(product.value.category);
+    }
+  } catch (err) {
+    console.error('Failed to load product:', err);
+  }
+};
+
+onMounted(async () => {
+  const productId = route.params.id as string;
+  await loadProductData(productId);
+  
+  // Load cart to check if product is already in cart
+  if (authStore.isAuthenticated) {
+    await cartStore.loadCart();
+  }
+});
+</script>
+
 <template>
   <section id="product-detail" class="container py-5">
     <div v-if="productStore.loading" class="text-center py-5">
@@ -110,16 +276,16 @@
             <button 
               class="btn btn-buy" 
               @click="buyNow"
-              :disabled="cartStore.loading"
+              :disabled="addingToCart"
             >
-              {{ cartStore.loading ? 'Processing...' : 'Buy Now' }}
+              {{ addingToCart ? 'Processing...' : 'Buy Now' }}
             </button>
             <button 
               class="btn btn-cart" 
               @click="addToCart"
-              :disabled="cartStore.loading"
+              :disabled="addingToCart"
             >
-              {{ cartStore.loading ? 'Adding...' : 'Add to Cart' }}
+              {{ addingToCart ? 'Adding...' : 'Add to Cart' }}
             </button>
           </div>
         </div>
@@ -178,130 +344,6 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { useProductStore } from '@/stores/productStore';
-import { useCartStore } from '@/stores/cartStore';
-import { useAuthStore } from '@/stores/authStore';
-import ProductCard from '@/components/common/ProductCard.vue';
-
-const route = useRoute();
-const router = useRouter();
-const productStore = useProductStore();
-const cartStore = useCartStore();
-const authStore = useAuthStore();
-
-const selectedImage = ref('');
-const showSuccessModal = ref(false);
-// const defaultAvatar = 'https://ui-avatars.com/api/?name=User&background=1a9b9b&color=fff';
-
-const product = computed(() => productStore.currentProduct);
-
-const isWishlisted = computed(() => {
-  if (!product.value) return false;
-  return productStore.isProductWishlisted(product.value.id);
-});
-
-// Get other products from same category
-const otherProducts = computed(() => {
-  if (!product.value) return [];
-  return productStore.products
-    .filter(p => p.category === product.value?.category && p.id !== product.value?.id)
-    .slice(0, 8);
-});
-
-// Set initial selected image when product loads
-watch(product, (newProduct) => {
-  if (newProduct) {
-    selectedImage.value = newProduct.images?.[0] || newProduct.image;
-  }
-}, { immediate: true });
-
-const formatPrice = (price: string | number): string => {
-  const numPrice = typeof price === 'string' ? parseInt(price) : price;
-  return numPrice.toLocaleString('id-ID');
-};
-
-const formatUploadTime = (uploadedAt?: string): string => {
-  if (!uploadedAt) return '5 hours ago';
-  
-  const now = new Date();
-  const uploaded = new Date(uploadedAt);
-  const diffMs = now.getTime() - uploaded.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffDays = Math.floor(diffHours / 24);
-  
-  if (diffHours < 1) return 'Just now';
-  if (diffHours < 24) return `${diffHours} hours ago`;
-  if (diffDays < 7) return `${diffDays} days ago`;
-  
-  return uploaded.toLocaleDateString('id-ID');
-};
-
-const toggleWishlist = async () => {
-  if (!authStore.isAuthenticated) {
-    router.push('/login');
-    return;
-  }
-  
-  if (product.value) {
-    const success = await productStore.toggleWishlist(product.value.id);
-    if (success) {
-      await productStore.fetchProductById(product.value.id);
-    }
-  }
-};
-
-const buyNow = async () => {
-  if (!authStore.isAuthenticated) {
-    router.push('/login');
-    return;
-  }
-  
-  if (product.value) {
-    await cartStore.addItem(product.value);
-    router.push('/checkout');
-  }
-};
-
-const addToCart = async () => {
-  if (!authStore.isAuthenticated) {
-    router.push('/login');
-    return;
-  }
-  
-  if (product.value) {
-    await cartStore.addItem(product.value);
-    showSuccessModal.value = true;
-  }
-};
-
-const closeModal = () => {
-  showSuccessModal.value = false;
-};
-
-const goToCart = () => {
-  showSuccessModal.value = false;
-  router.push('/cart');
-};
-
-onMounted(async () => {
-  const productId = route.params.id as string;
-  await productStore.fetchProductById(productId);
-  
-  // Load wishlist if user is authenticated
-  if (authStore.isAuthenticated) {
-    await productStore.loadWishlist();
-  }
-  
-  // Fetch products for "Other Products" section
-  if (product.value?.category) {
-    await productStore.fetchProductsByCategory(product.value.category);
-  }
-});
-</script>
-
 <style scoped>
 /* Container */
 #product-detail {
@@ -359,14 +401,12 @@ onMounted(async () => {
   top: 5px;
   right: 5px;
   border: none;
-  /* background: white; */
-  /* padding: 12px; */
   border-radius: 50%;
-  /* box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); */
   cursor: pointer;
   font-size: 1.5rem;
   transition: all 0.3s ease;
   z-index: 10;
+  background: transparent;
 }
 
 .wishlist-btn:hover:not(:disabled) {
@@ -407,14 +447,6 @@ onMounted(async () => {
   border-radius: 20px;
   font-size: 0.9rem;
   color: #666;
-}
-
-.wishlist-count {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
 }
 
 .section-title {
@@ -517,72 +549,6 @@ onMounted(async () => {
   opacity: 0.5;
 }
 
-/* Alert Notification */
-.alert-notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  min-width: 300px;
-  animation: slideDown 0.3s ease;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -20px);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-}
-
-/* Seller Info */
-.seller-info {
-  padding: 1.5rem;
-  background: #f9fafb;
-  border-radius: 12px;
-}
-
-.seller-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.seller-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid white;
-}
-
-.seller-details {
-  flex: 1;
-}
-
-.seller-name {
-  font-weight: 600;
-  color: #111827;
-  margin: 0 0 0.25rem 0;
-}
-
-.seller-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  color: #FFA500;
-  font-size: 0.9rem;
-}
-
-.seller-rating span {
-  color: #6b7280;
-  margin-left: 0.5rem;
-}
-
 /* Other Products Section */
 .other-products-section {
   margin-top: 4rem;
@@ -645,10 +611,6 @@ onMounted(async () => {
   margin-bottom: 1.5rem;
   display: flex;
   justify-content: center;
-}
-
-.modal-icon svg {
-  filter: drop-shadow(0 4px 6px rgba(255, 165, 0, 0.3));
 }
 
 .modal-title {

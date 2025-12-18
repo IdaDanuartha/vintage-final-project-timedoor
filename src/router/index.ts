@@ -36,6 +36,29 @@ const router = createRouter({
       name: 'profile',
       component: () => import('@/views/ProfileView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/cart',
+      name: 'cart',
+      component: () => import('@/views/CartsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/checkout',
+      name: 'checkout',
+      component: () => import('@/views/CheckoutView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/wishlist',
+      name: 'wishlist',
+      component: () => import('@/views/WishlistView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('@/views/NotFoundView.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {

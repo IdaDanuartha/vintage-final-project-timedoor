@@ -3,7 +3,7 @@ export interface Product {
   name: string;
   price: number;
   image: string;
-  size: number;
+  size: string;
   category: string;
   condition?: string;
   color: string;
@@ -11,8 +11,10 @@ export interface Product {
   uploadedAt?: string;
   shipping: string;
   description: string;
+  sellerId?: string;
   wishlistCount?: number;
   images?: string[];
+  wishlistDocId?: string;
 }
 
 export interface Category {
@@ -31,9 +33,16 @@ export interface Brand {
 export interface User {
   uid: string;
   email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
+  displayName?: string | null;
+  photoURL?: string | null;
+  
+  // Additional Firestore fields
   username?: string;
+  fullName?: string;
+  photo?: string | null;
+  wishlist?: string[];
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UserProfile {
@@ -57,12 +66,54 @@ export interface SignupForm {
   agreeToTerms: boolean;
 }
 
-export interface Transaction {
-  id: string;
+export interface CartItem extends Product {
+  quantity: number;
+}
+
+export interface WishlistItem {
+  id?: string; // Firestore document ID
   userId: string;
   productId: string;
-  productName: string;
-  price: string;
-  date: string;
-  status: 'Pending' | 'Completed' | 'Shipped' | 'Cancelled';
+  addedAt: string | Date;
+}
+
+export interface Order {
+  id: string;
+  orderNumber: string;
+  userId: string;
+  items: CartItem[];
+  total: number;
+  subtotal: number;
+  protectionFee: number;
+  shippingFee: number;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+  shippingAddress: ShippingAddress;
+  deliveryMethod: DeliveryMethod;
+  paymentMethod: PaymentMethod;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ShippingAddress {
+  name: string;
+  phone?: string;
+  address: string;
+  city?: string;
+  province?: string;
+  postalCode?: string;
+}
+
+export interface DeliveryMethod {
+  name: string;
+  price: number;
+  estimatedTime: string;
+}
+
+export interface PaymentMethod {
+  type: string;
+  last4?: string;
+  cardNumber?: string;
+  expiry?: string;
+  cvv?: string;
+  holderName?: string;
 }
