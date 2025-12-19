@@ -1,48 +1,149 @@
 # vintage-final-project
 
-This template should help get you started developing with Vue 3 in Vite.
+Aplikasi web **e-commerce sederhana** berbasis **Vue 3** yang menggunakan **Firebase** sebagai backend dan **Pinia** sebagai state management.  
+Project ini dibuat untuk memenuhi kriteria aplikasi web modern yang mencakup autentikasi pengguna, CRUD data, proteksi halaman, dan pengelolaan state.
 
-## Recommended IDE Setup
+---
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## 🚀 Tech Stack
 
-## Recommended Browser Setup
+- **Vue 3** (Composition API)
+- **Vite**
+- **Pinia** (State Management)
+- **Firebase**
+  - Firebase Authentication
+  - Cloud Firestore
+- **TypeScript**
+- CSS / Tailwind / Custom Styling
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Type Support for `.vue` Imports in TS
+## ✨ Fitur Aplikasi
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+### 🔐 Autentikasi Pengguna
+- Register (username, email, password)
+- Login
+- Logout
+- Proteksi halaman (hanya bisa diakses setelah login)
 
-## Customize configuration
+### 👤 Manajemen Akun
+- Update profile
+- Change password
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### 🛍️ Produk
+- Menampilkan daftar produk dari Firebase
+- Filter produk
+- Searching produk
+- Favorite / wishlist produk
 
-## Project Setup
+### 🛒 Cart & Checkout
+- Tambah produk ke cart
+- Update jumlah item di cart
+- Hapus item dari cart
+- Checkout produk
+- Penyimpanan data transaksi ke Firebase
 
+### 📦 Transaksi
+- Transaction history (riwayat pembelian)
+- Detail transaksi per pengguna
+
+### ⭐ Rating & Review
+- Memberi rating & review produk
+- Validasi user (hanya pengguna yang sudah membeli produk)
+- Menampilkan daftar review per produk
+
+---
+
+## 📂 State Management (Pinia)
+
+Aplikasi ini menggunakan **Pinia** untuk mengelola state, meliputi:
+- Auth / user state
+- Produk
+- Cart
+- Wishlist
+- Review & rating
+- Transaksi
+
+Struktur store berada di folder:
+
+```txt
+src/stores/
+```
+
+---
+
+## 🔒 Proteksi Halaman
+
+- Halaman tertentu hanya dapat diakses oleh pengguna yang sudah login
+- Menggunakan **Vue Router + Firebase Authentication**
+- Route Guard diterapkan untuk menjaga keamanan halaman
+
+---
+
+## 🔥 Firebase & Environment Variables
+
+Project ini menggunakan **Firebase** sebagai sumber data utama.
+
+### 📄 File `.env`
+
+```env
+VITE_FIREBASE_API_KEY=your_api_key_here
+VITE_FIREBASE_AUTH_DOMAIN=your_auth_domain_here
+VITE_FIREBASE_PROJECT_ID=your_project_id_here
+VITE_FIREBASE_STORAGE_BUCKET=your_storage_bucket_here
+VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id_here
+VITE_FIREBASE_APP_ID=your_app_id_here
+```
+
+⚠️ **Catatan:**  
+File `.env` tidak boleh di-commit ke repository publik.
+
+---
+
+### 📄 Firebase Config (`src/config/firebase.ts`)
+
+```ts
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+}
+
+const app = initializeApp(firebaseConfig)
+
+export const auth = getAuth(app)
+export const db = getFirestore(app)
+```
+
+---
+
+## ⚙️ Project Setup
+
+### Install Dependencies
 ```sh
 pnpm install
 ```
 
-### Compile and Hot-Reload for Development
-
+### Development
 ```sh
 pnpm dev
 ```
 
-### Type-Check, Compile and Minify for Production
-
+### Build Production
 ```sh
 pnpm build
 ```
 
-### Lint with [ESLint](https://eslint.org/)
+---
 
-```sh
-pnpm lint
-```
+## 👨‍💻 Author
+
+Vintage Final Project  
+Vue 3 • Pinia • Firebase
