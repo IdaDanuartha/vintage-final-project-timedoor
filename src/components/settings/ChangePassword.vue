@@ -48,7 +48,7 @@
       <div class="mb-4">
         <label class="form-label">Confirm New Password</label>
         <div class="password-input-wrapper">
-          <input 
+          <input
             v-model="passwordForm.confirmPassword"
             :type="showConfirmPassword ? 'text' : 'password'"
             class="form-control"

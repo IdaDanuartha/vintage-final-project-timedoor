@@ -13,7 +13,7 @@
         </router-link>
         
         <div class="search-bar">
-          <i class="fas fa-search search-icon"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search search-icon"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
           <input 
             v-model="searchQuery" 
             type="text" 
@@ -78,20 +78,20 @@
               </div>
               <div class="dropdown-divider"></div>
               <router-link to="/profile" class="dropdown-item" @click="closeDropdown">
-                <i class="fas fa-user"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 Profile Settings
               </router-link>
               <router-link to="/wishlist" class="dropdown-item" @click="closeDropdown">
-                <i class="far fa-heart"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-icon lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
                 My Wishlist
               </router-link>
-              <router-link to="/orders" class="dropdown-item" @click="closeDropdown">
-                <i class="fas fa-shopping-bag"></i>
+              <router-link to="/profile/transactions" class="dropdown-item" @click="closeDropdown">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handbag-icon lucide-handbag"><path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z"/><path d="M8 11V6a4 4 0 0 1 8 0v5"/></svg>
                 My Orders
               </router-link>
               <div class="dropdown-divider"></div>
               <a href="#" class="dropdown-item logout" @click.prevent="handleLogout">
-                <i class="fas fa-sign-out-alt"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
                 Logout
               </a>
             </div>
@@ -109,7 +109,7 @@
 
         <!-- Mobile Menu Toggle -->
         <button class="hamburger-btn" @click="toggleMobileMenu">
-          <i class="fas fa-bars"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-menu-icon lucide-menu"><path d="M4 5h16"/><path d="M4 12h16"/><path d="M4 19h16"/></svg>
         </button>
       </div>
     </div>
@@ -117,7 +117,7 @@
     <!-- Mobile Menu -->
     <div v-if="showMobileMenu" class="mobile-menu">
       <div class="mobile-search">
-        <i class="fas fa-search search-icon"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search search-icon"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
         <input 
           v-model="searchQuery" 
           type="text" 
@@ -141,25 +141,25 @@
 
       <div class="mobile-menu-items">
         <router-link to="/profile" class="mobile-menu-item" @click="closeMobileMenu">
-          <i class="fas fa-user"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           Profile
         </router-link>
         <router-link to="/cart" class="mobile-menu-item" @click="closeMobileMenu">
-          <i class="fas fa-shopping-cart"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart-icon lucide-shopping-cart"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
           Cart
           <span v-if="cartStore.totalItems > 0" class="mobile-badge">{{ cartStore.totalItems }}</span>
         </router-link>
         <router-link to="/wishlist" class="mobile-menu-item" @click="closeMobileMenu">
-          <i class="far fa-heart"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-heart-icon lucide-heart"><path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5"/></svg>
           Wishlist
           <span v-if="wishlistCount > 0" class="mobile-badge">{{ wishlistCount }}</span>
         </router-link>
-        <router-link to="/orders" class="mobile-menu-item" @click="closeMobileMenu">
-          <i class="fas fa-shopping-bag"></i>
+        <router-link to="/profile/transactions" class="mobile-menu-item" @click="closeMobileMenu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-handbag-icon lucide-handbag"><path d="M2.048 18.566A2 2 0 0 0 4 21h16a2 2 0 0 0 1.952-2.434l-2-9A2 2 0 0 0 18 8H6a2 2 0 0 0-1.952 1.566z"/><path d="M8 11V6a4 4 0 0 1 8 0v5"/></svg>
           Orders
         </router-link>
         <a href="#" class="mobile-menu-item logout" @click.prevent="handleLogout">
-          <i class="fas fa-sign-out-alt"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out-icon lucide-log-out"><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/></svg>
           Logout
         </a>
       </div>

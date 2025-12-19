@@ -14,10 +14,10 @@
           <img v-if="profileForm.photo" :src="profileForm.photo" alt="Profile">
           <i v-else class="fas fa-user"></i>
         </div>
-        <button class="btn-choose" @click="choosePhoto">Choose</button>
+        <button type="button" class="btn-choose" @click="choosePhoto">Choose</button>
         <span class="photo-info">JPG, JPEG or PNG, 1 MB max.</span>
-        <button class="btn-delete" @click="deletePhoto" :disabled="!profileForm.photo">
-          <i class="far fa-trash-alt"></i>
+        <button type="button" class="btn-delete" @click="deletePhoto" :disabled="!profileForm.photo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
       </div>
 
@@ -97,7 +97,6 @@ const updateLoading = ref(false);
 const error = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
 
-// Load user data
 onMounted(async () => {
   await userStore.fetchUserProfile();
   if(currentUser.value) {
@@ -108,11 +107,8 @@ onMounted(async () => {
       photo: currentUser.value.photo || currentUser.value.photoURL || ''
     };
   }
-
-  console.log(profileForm.value)
 });
 
-// Watch for user data changes
 watch(currentUser, (user) => {
   if (user) {
     profileForm.value = {
@@ -133,13 +129,11 @@ const choosePhoto = () => {
     const file = e.target.files[0];
     if (!file) return;
     
-    // Validate file size (1MB max)
     if (file.size > 1024 * 1024) {
       error.value = 'File size must be less than 1MB';
       return;
     }
     
-    // Convert to base64 for preview (in production, upload to storage)
     const reader = new FileReader();
     reader.onload = (e: any) => {
       profileForm.value.photo = e.target.result;
@@ -166,12 +160,10 @@ const handleUpdateProfile = async () => {
       photo: profileForm.value.photo
     });
     
-    // Refresh auth store data
     await authStore.refreshUserData();
     
     successMessage.value = result.message;
     
-    // Clear success message after 3 seconds
     setTimeout(() => {
       successMessage.value = null;
     }, 3000);
@@ -184,6 +176,13 @@ const handleUpdateProfile = async () => {
 </script>
 
 <style scoped>
+.content-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+}
+
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -207,9 +206,121 @@ const handleUpdateProfile = async () => {
   100% { transform: rotate(360deg); }
 }
 
+.photo-upload {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #eee;
+}
+
+.photo-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #666;
+  min-width: 60px;
+}
+
+.photo-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.photo-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-avatar i {
+  font-size: 32px;
+  color: #999;
+}
+
+.btn-choose {
+  padding: 8px 20px;
+  background: #17a2b8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-choose:hover {
+  background: #138496;
+}
+
+.photo-info {
+  font-size: 13px;
+  color: #999;
+}
+
+.btn-delete {
+  padding: 4px 8px;
+  background: transparent;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #dc3545;
+  color: #fff;
+}
+
+.btn-delete:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mb-4 {
+  margin-bottom: 24px;
+}
+
+.form-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  max-width: 500px;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: border-color 0.2s;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: #17a2b8;
+}
+
+.form-control:disabled {
+  background: #f5f5f5;
+  color: #999;
+  cursor: not-allowed;
+}
+
 .form-text {
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   font-size: 13px;
   color: #999;
 }
@@ -219,6 +330,7 @@ const handleUpdateProfile = async () => {
   border-radius: 6px;
   margin-bottom: 20px;
   font-size: 14px;
+  max-width: 500px;
 }
 
 .alert-success {
@@ -233,8 +345,37 @@ const handleUpdateProfile = async () => {
   border: 1px solid #f5c6cb;
 }
 
-.btn:disabled {
+.btn-primary {
+  background: #17a2b8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #138496;
+}
+
+.btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .photo-upload {
+    flex-wrap: wrap;
+  }
+
+  .form-control {
+    max-width: 100%;
+  }
+
+  .alert {
+    max-width: 100%;
+  }
 }
 </style>

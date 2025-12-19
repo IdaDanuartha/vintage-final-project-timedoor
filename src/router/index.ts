@@ -34,8 +34,29 @@ const router = createRouter({
     {
       path: '/profile',
       name: 'profile',
+      redirect: '/profile/details',
       component: () => import('@/views/ProfileView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
+      children: [
+        {
+          path: 'details',
+          name: 'profile-details',
+          component: () => import('@/components/settings/ProfileDetails.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'password',
+          name: 'profile-password',
+          component: () => import('@/components/settings/ChangePassword.vue'),
+          meta: { requiresAuth: true }
+        },
+        {
+          path: 'transactions',
+          name: 'profile-transactions',
+          component: () => import('@/components/settings/TransactionHistory.vue'),
+          meta: { requiresAuth: true }
+        }
+      ]
     },
     {
       path: '/cart',
@@ -70,15 +91,44 @@ const router = createRouter({
   }
 });
 
-// Navigation guard
-router.beforeEach((to, from, next) => {
+// Navigation guard with proper auth check
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
   
+  if (!authStore.authInitialized) {
+    console.log('Router guard: Waiting for auth initialization...');
+    
+    await new Promise<void>((resolve) => {
+      const checkInterval = setInterval(() => {
+        if (authStore.authInitialized) {
+          clearInterval(checkInterval);
+          resolve();
+        }
+      }, 50);
+      
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        console.warn('Auth initialization timeout in router guard');
+        resolve();
+      }, 10000);
+    });
+  }
+
+  console.log('Navigation Guard:', {
+    to: to.name,
+    from: from.name,
+    authInitialized: authStore.authInitialized,
+    isAuthenticated: authStore.isAuthenticated,
+    hasUser: !!authStore.user
+  });
+
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login');
-  } else if ((to.name === 'login' || to.name === 'signup') && authStore.isAuthenticated) {
+    next({ name: 'login', query: { redirect: to.fullPath } });
+  } 
+  else if ((to.name === 'login' || to.name === 'signup') && authStore.isAuthenticated) {
     next('/');
-  } else {
+  } 
+  else {
     next();
   }
 });

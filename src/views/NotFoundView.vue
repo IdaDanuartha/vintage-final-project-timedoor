@@ -139,6 +139,7 @@ const goBack = (): void => {
   position: relative;
   overflow: hidden;
   padding: 2rem 1rem;
+  margin-bottom: -40px;
 }
 
 #not-found-page::before {

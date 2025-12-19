@@ -5,16 +5,11 @@
 
       <div class="settings-layout">
         <!-- Sidebar Menu -->
-        <SettingsSidebar 
-          :activeMenu="activeMenu" 
-          @update:activeMenu="activeMenu = $event" 
-        />
+        <SettingsSidebar />
 
-        <!-- Content Area -->
+        <!-- Content Area - Router Outlet -->
         <div class="settings-content">
-          <ProfileDetails v-if="activeMenu === 'profile'" />
-          <ChangePassword v-if="activeMenu === 'password'" />
-          <TransactionHistory v-if="activeMenu === 'transactions'" />
+          <router-view />
         </div>
       </div>
     </div>
@@ -22,11 +17,49 @@
 </template>
 
 <script setup lang="ts">
-import ChangePassword from '@/components/settings/ChangePassword.vue';
-import ProfileDetails from '@/components/settings/ProfileDetails.vue';
 import SettingsSidebar from '@/components/settings/SettingsSidebar.vue';
-import TransactionHistory from '@/components/settings/TransactionHistory.vue';
-import { ref } from 'vue';
-
-const activeMenu = ref('profile');
 </script>
+
+<style scoped>
+.page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 40px 20px;
+}
+
+.settings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.settings-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 32px;
+}
+
+.settings-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 32px;
+}
+
+.settings-content {
+  background: #fff;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+@media (max-width: 768px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .settings-content {
+    padding: 20px;
+  }
+}
+</style>

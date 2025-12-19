@@ -99,11 +99,16 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = cachedUser;
       }
 
+      console.log(cachedUser)
+
       // Then set up Firebase auth listener for real-time updates
       const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
         loading.value = true;
+
+        console.log(firebaseUser)
         
         if (firebaseUser) {
+          console.log("tessss")
           // Fetch complete user data from Firestore
           const userData = await fetchCompleteUserData(firebaseUser);
           

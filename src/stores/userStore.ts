@@ -137,6 +137,7 @@ export const useUserStore = defineStore('user', () => {
       const ordersRef = collection(db, 'orders');
       const q = query(ordersRef, where('userId', '==', userId.value));
       const querySnapshot = await getDocs(q);
+      console.log(querySnapshot);
       
       orders.value = querySnapshot.docs.map(doc => ({
         id: doc.id,
@@ -147,6 +148,8 @@ export const useUserStore = defineStore('user', () => {
       orders.value.sort((a, b) => 
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
+
+      console.log(orders.value);
     } catch (e: any) {
       error.value = e.message;
       console.error('Error fetching orders:', e);
