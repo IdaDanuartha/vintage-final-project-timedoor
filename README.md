@@ -14,14 +14,14 @@ Project ini dibuat untuk memenuhi kriteria aplikasi web modern yang mencakup aut
   - Firebase Authentication
   - Cloud Firestore
 - **TypeScript**
-- CSS / Tailwind / Custom Styling
+- CSS / Bootstrap
 
 ---
 
 ## ✨ Fitur Aplikasi
 
 ### 🔐 Autentikasi Pengguna
-- Register (username, email, password)
+- Register
 - Login
 - Logout
 - Proteksi halaman (hanya bisa diakses setelah login)
