@@ -244,7 +244,7 @@ const continueShopping = () => {
 
 const goToHistory = () => {
   showSuccessModal.value = false;
-  router.push('/orders');
+  router.push('/profile/transactions');
 };
 
 onMounted(() => {
